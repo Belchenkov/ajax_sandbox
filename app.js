@@ -1,55 +1,28 @@
-document.getElementById('button1').addEventListener('click', loadCustomer);
-document.getElementById('button2').addEventListener('click', loadCustomers);
+document.querySelector('.get-jokes').addEventListener('click', getJokes);
 
-// Load Single Customer
-function loadCustomer () {
+function getJokes (e) {
+    e.preventDefault();
+    const number = document.querySelector('input[type="number"]').value;
+
     const xhr = new XMLHttpRequest();
-
-    xhr.open('GET', 'customer.json', true);
+    xhr.open('GET', `http://api.icndb.com/jokes/random/${number}`, true);
 
     xhr.onload = function () {
-      if (this.status === 200) {
-        const customer = JSON.parse(this.responseText);
-        const output = `
-            <ul>
-                <li>ID: ${customer.id}</li>
-                <li>Name: ${customer.name}</li>
-                <li>Company: ${customer.company}</li>
-                <li>Phone: ${customer.phone}</li>
-            </ul>  
-        `;
+        if (this.status === 200) {
+            const response = JSON.parse(this.responseText);
 
-         document.getElementById('customer').innerHTML = output;
-      }
-    };
+            let output = '';
 
-    xhr.send();
-}
+            if (response.type === 'success') {
+                response.value.forEach(function (joke) {
+                    output += `<li>${joke.joke}</li>`;
+                });
+            } else {
+                output += '<li>Something went wrong!</li>';
+            }
 
-// Load Customers
-function loadCustomers () {
-    const xhr = new XMLHttpRequest();
-
-    xhr.open('GET', 'customers.json', true);
-
-    xhr.onload = function () {
-      if (this.status === 200) {
-        const customers = JSON.parse(this.responseText);
-        let output = '';
-
-        customers.forEach(function (customer) {
-            output += `
-            <ul>
-                <li>ID: ${customer.id}</li>
-                <li>Name: ${customer.name}</li>
-                <li>Company: ${customer.company}</li>
-                <li>Phone: ${customer.phone}</li>
-            </ul>  
-            `;
-        });
-
-        document.getElementById('customers').innerHTML = output;
-      }
+            document.querySelector('.jokes').innerHTML = output;
+        }
     };
 
     xhr.send();
